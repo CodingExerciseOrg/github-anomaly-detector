@@ -12,7 +12,7 @@ from datetime import time
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.json")
+DEFAULT_CONFIG_PATH = os.path.join(os.path.dirname(__file__), "../config/config.json")
 
 
 @dataclass
