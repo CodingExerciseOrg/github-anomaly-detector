@@ -7,15 +7,22 @@ alerts on suspicious behavior.
 
 | # | Behavior | GitHub event |
 |---|----------|--------------|
-| 1 | Code pushed between **14:00–16:00 UTC** | `push` |
+| 1 | Code pushed between **14:00–16:00 ET** | `push` |
 | 2 | Team created with the prefix **"hacker"** (case does not matter) | `team` |
 | 3 | Repository **deleted within 10 minutes** of creation | `repository` |
+
+ET means EST(Winter)/EDT(Summer) Time (America/New_York Time Zone) 
+
+If restricted time window includes midnight (00:00 / 12:00 AM), add two time windows into config file. 
+
+For example, 22:00-23:59 and 00:00-02:00. All times are in America/New_York timezone  
 
 ## Requirements
 
 - Python 3.10+
 - A GitHub organization with webhook access
-- [smee.io](https://smee.io) (or ngrok) for local webhook tunnelling
+- [smee.io](https://smee.io) (or ngrok) for local webhook tunnelling. You do not need to use smee if your webhook server has public IP and does not have NAT issues.
+
 
 ## Setup
 
@@ -27,7 +34,7 @@ npm install --global smee-client        # tool to forward smee events
 ```
 
 
-### 2. Set up smee.io
+### 2. Set up smee.io (only if you test the program locally or your server is behind NUT)
 
 1. Go to https://smee.io and click **Start a new channel**.
 2. Copy your unique smee URL (e.g. `https://smee.io/xxxxxxxxx`).
@@ -36,6 +43,7 @@ npm install --global smee-client        # tool to forward smee events
 ```bash
 smee --url https://smee.io/xxxxxxxxx --target http://localhost:5125/webhook
 ```
+
 
 ### 3. Register the webhook on your GitHub organization
 
@@ -56,7 +64,7 @@ To set them for Linux, run:
 export WEBHOOK_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ```
 
-### 4. Run the app
+### 4. Run the app (locally or on the server)
 
 ```bash
 # Basic
@@ -111,8 +119,8 @@ from notifiers.slack_notifier import SlackNotifier
 dispatcher.register_notifier(SlackNotifier(webhook_url="..."))
 ```
 
-There is a built-in email notifier called email_notifier.py as an example. In my design, you must use an email application password for the sender email,as 
-well as input a reciever email. You can input your own sender and destination emails in config.json, and the application password should be an environment variable.
+There is a built-in email notifier called email_notifier.py. You must use an email application password for the sender email,as 
+well as input a reciever email. DO NOT USE your main Google or Yahoo account password. You can input your own sender and destination emails in config.json, and the application password should be an environment variable.
 
 For Windows, use:
 ```bash
