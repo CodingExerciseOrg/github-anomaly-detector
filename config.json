@@ -3,12 +3,12 @@
     "push_time": {
       "enabled": true,
       "suspicious_windows": [
-        {"start": "02:00", "end": "16:00"}
+        {"start": "14:00", "end": "16:00"}
       ]
     },
     "team_name": {
       "enabled": true,
-      "suspicious_prefixes": ["hacker", "exploit", "hackerexample"]
+      "suspicious_prefixes": ["hacker"]
     },
     "repo_lifecycle": {
       "enabled": true,
