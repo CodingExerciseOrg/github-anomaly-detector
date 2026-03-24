@@ -68,7 +68,7 @@ When a suspicious event occurs, an alert is printed to the console:
 
 ```
 ============================================================
-  🚨 SUSPICIOUS ACTIVITY DETECTED
+  SUSPICIOUS ACTIVITY DETECTED
 ============================================================
   Title      : Code pushed during restricted window (14:00–16:00 UTC)
   Event Type : push
