@@ -68,7 +68,7 @@ export WEBHOOK_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 ```bash
 # Basic
-python main.py
+python ./src/main.py
 ```
 
 You should see:
