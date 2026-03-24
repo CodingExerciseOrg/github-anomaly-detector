@@ -8,7 +8,7 @@ alerts on suspicious behavior.
 | # | Behavior | GitHub event |
 |---|----------|--------------|
 | 1 | Code pushed between **14:00–16:00 UTC** | `push` |
-| 2 | Team created with the prefix **"hacker"** | `team` |
+| 2 | Team created with the prefix **"hacker"** (case does not matter) | `team` |
 | 3 | Repository **deleted within 10 minutes** of creation | `repository` |
 
 ## Requirements
@@ -112,7 +112,7 @@ dispatcher.register_notifier(SlackNotifier(webhook_url="..."))
 ```
 
 There is a built-in email notifier called email_notifier.py as an example. In my design, you must use an email application password for the sender email,as 
-well as input a reciever email. You can input your own sender and destination emails, and the application password should be an environment variable.
+well as input a reciever email. You can input your own sender and destination emails in config.json, and the application password should be an environment variable.
 
 For Windows, use:
 ```bash
@@ -123,3 +123,6 @@ For Linux, use:
 ```bash
 export EMAIL_APPLICATION_PASSWORD = "xxxxxxxxxxxxxxxx"
 ```
+
+The email notifier currently tested and works for google and yahoo email addresses as sender. If using a google sender, use "smtp.mail.yahoo.com" for the smtp_host. If using google, 
+use "smtp.google.com" in config.json.
