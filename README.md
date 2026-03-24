@@ -25,6 +25,10 @@ alerts on suspicious behavior.
 pip install -r requirements.txt
 pip install smee-client        # CLI tool to forward smee events locally
 ```
+Or:
+```bash
+npm install --global smee-client
+```
 
 ### 2. Set up smee.io
 

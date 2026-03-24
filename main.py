@@ -5,7 +5,7 @@ Run with:
     python main.py
 
 Environment variables (all optional):
-    PORT            Port to listen on (default: 5000)
+    PORT            Port to listen on (default: 5125)
     WEBHOOK_SECRET  GitHub webhook secret for payload verification
     CONFIG_PATH     Path to config.json (default: ./config.json)
     LOG_LEVEL       Logging level (default: INFO)
@@ -25,6 +25,7 @@ from detectors.repo_lifecycle_detector import RepoLifecycleDetector
 
 # --- Notifiers ---
 from notifiers.console_notifier import ConsoleNotifier
+from notifiers.email_notifier import EmailNotifier
 
 
 def build_dispatcher() -> EventDispatcher:
@@ -41,8 +42,9 @@ def build_dispatcher() -> EventDispatcher:
     if config.repo_lifecycle.enabled:
         dispatcher.register_detector(RepoLifecycleDetector(config.repo_lifecycle))
 
-    # Register notifiers — add Slack, email, etc. here
+    # Register notifiers 
     dispatcher.register_notifier(ConsoleNotifier())
+    dispatcher.register_notifier(EmailNotifier())
 
     return dispatcher
 
@@ -55,7 +57,9 @@ def main() -> None:
     )
 
     webhook_secret = os.getenv("WEBHOOK_SECRET")
-    port = int(os.getenv("PORT", 5000))
+
+
+    port = int(os.getenv("PORT", 5125))
 
     dispatcher = build_dispatcher()
     app = create_app(dispatcher, webhook_secret=webhook_secret)

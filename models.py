@@ -1,15 +1,15 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-
+from zoneinfo import ZoneInfo  # add this import
 
 @dataclass
 class Alert:
     """Represents a detected suspicious event."""
 
-    title: str                      # Alert description
-    event_type: str                 # GitHub webhook event type (e.g. "push")
-    details: dict = field(default_factory=dict)  # Relevant payload fields
-    detected_at: datetime = field(default_factory=datetime.utcnow)
+    title: str
+    event_type: str
+    details: dict = field(default_factory=dict)
+    detected_at: datetime = field(default_factory=lambda: datetime.now(ZoneInfo("America/New_York")))  # changed
 
     def __str__(self) -> str:
         lines = [
@@ -19,7 +19,7 @@ class Alert:
             "=" * 60,
             f"  Title      : {self.title}",
             f"  Event Type : {self.event_type}",
-            f"  Detected At: {self.detected_at.strftime('%Y-%m-%d %H:%M:%S')} UTC",
+            f"  Detected At: {self.detected_at.strftime('%Y-%m-%d %H:%M:%S %Z')}",  # changed
             "  Details:",
         ]
         for key, value in self.details.items():
