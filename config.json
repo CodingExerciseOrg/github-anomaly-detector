@@ -3,7 +3,7 @@
     "push_time": {
       "enabled": true,
       "suspicious_windows": [
-        {"start": "14:00", "end": "16:00"}
+        {"start": "02:00", "end": "16:00"}
       ]
     },
     "team_name": {

@@ -31,7 +31,6 @@ class EventDispatcher:
         Called once per incoming webhook. Runs all matching detectors
         and notifies on any alerts produced.
         """
-        print("\n********\nStart detectors\n")
         for detector in self._detectors.get(event_type, []):
             alert = detector.analyze(event_type, payload)
             if alert:

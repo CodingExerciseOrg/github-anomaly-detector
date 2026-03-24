@@ -70,14 +70,14 @@ When a suspicious event occurs, an alert is printed to the console:
 ============================================================
   SUSPICIOUS ACTIVITY DETECTED
 ============================================================
-  Title      : Code pushed during restricted window (14:00–16:00 UTC)
+  Title      : Code pushed during restricted window (14:00–16:00 ET)
   Event Type : push
-  Detected At: 2024-06-01 14:32:11 UTC
+  Detected At: 2024-06-01 14:32:11 ET
   Details:
     - pusher: octocat
     - repository: my-org/my-repo
     - branch: refs/heads/main
-    - push_time_utc: 14:32:11
+    - push_time_ET: 14:32:11
     - commit_count: 3
 ============================================================
 ```

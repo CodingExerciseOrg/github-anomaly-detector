@@ -23,8 +23,6 @@ class PushTimeDetector(BaseDetector):
     def analyze(self, event_type: str, payload: dict) -> Optional[Alert]:
         timestamp_str = payload.get("head_commit", {}).get("timestamp")
 
-        print("PushTimeDetector analyzing event with timestamp:", timestamp_str)
-
         if timestamp_str:
             push_time = datetime.fromisoformat(timestamp_str).astimezone(ZoneInfo("America/New_York"))
 
@@ -33,7 +31,6 @@ class PushTimeDetector(BaseDetector):
 
 
         matched_window = self._find_matching_window(push_time)
-        print("Matched window:", matched_window)
 
         if matched_window is None:
             return None
@@ -50,7 +47,7 @@ class PushTimeDetector(BaseDetector):
                 "pusher": pusher,
                 "repository": repo,
                 "branch": ref,
-                "push_time_ET": push_time.strftime("%H:%M:%S"),
+                "push_time_et": push_time.strftime("%H:%M:%S"),
                 "matched_window": str(matched_window),
                 "commit_count": len(commits),
             },
