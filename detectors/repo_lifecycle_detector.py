@@ -1,26 +1,31 @@
-from datetime import datetime, timezone
+import logging
+from datetime import datetime
 from typing import Optional
+from zoneinfo import ZoneInfo
 
 from detectors.base import BaseDetector
 from config_loader import RepoLifecycleConfig
 from models import Alert
 
+logger = logging.getLogger(__name__)
+
+ET = ZoneInfo("America/New_York")
+
 
 class RepoLifecycleDetector(BaseDetector):
     """
-    Flags a repository that is deleted within a configured number of seconds of being created.
+    Flags a repository deleted within a configured number of seconds of creation.
 
-    State is kept in memory (a dict of repo_full_name -> created_at). This is
-    sufficient for a single-process deployment; swap for Redis or a DB
-    if you need multi-process or persistent state.
+    Uses timestamps from the GitHub payload itself (repository.created_at)
+    rather than local wall-clock time, eliminating sensitivity to network
+    or smee delivery delays.
     """
 
     github_event_types = ["repository"]
 
     def __init__(self, config: RepoLifecycleConfig) -> None:
         self._config = config
-        # Maps repo full_name -> UTC creation datetime
-        self._creation_times: dict[str, datetime] = {}
+        self._creation_times: dict[str, str] = {}
 
     def analyze(self, event_type: str, payload: dict) -> Optional[Alert]:
         action = payload.get("action")
@@ -29,16 +34,23 @@ class RepoLifecycleDetector(BaseDetector):
         sender = payload.get("sender", {}).get("login", "unknown")
 
         if action == "created":
-            self._creation_times[repo_name] = datetime.now(timezone.utc)
+            # created_at is an ISO 8601 string e.g. "2026-03-24T10:00:00Z"
+            created_at = repo.get("created_at")
+            if created_at is not None:
+                self._creation_times[repo_name] = created_at
+                logger.debug("Recorded creation of %s at %s", repo_name, created_at)
             return None
 
         if action == "deleted":
-            created_at = self._creation_times.pop(repo_name, None)
-            if created_at is None:
-                # We didn't observe the creation; can't measure lifetime.
+            created_at_str = self._creation_times.pop(repo_name, None)
+
+            if created_at_str is None:
+                logger.warning("Delete event for %s but no creation time on record.", repo_name)
                 return None
 
-            deleted_at = datetime.now(timezone.utc)
+            # Parse ISO string — replace Z suffix for Python < 3.11 compatibility
+            created_at = datetime.fromisoformat(created_at_str.replace("Z", "+00:00")).astimezone(ET)
+            deleted_at = datetime.now(ET)
             lifetime_seconds = (deleted_at - created_at).total_seconds()
             threshold = self._config.deletion_threshold_seconds
 
@@ -51,8 +63,8 @@ class RepoLifecycleDetector(BaseDetector):
                         "created_by": sender,
                         "lifetime_seconds": round(lifetime_seconds, 1),
                         "threshold_seconds": threshold,
-                        "created_at_utc": created_at.strftime("%H:%M:%S"),
-                        "deleted_at_utc": deleted_at.strftime("%H:%M:%S"),
+                        "created_at_et": created_at.strftime("%Y-%m-%d %H:%M:%S %Z"),
+                        "deleted_at_et": deleted_at.strftime("%Y-%m-%d %H:%M:%S %Z"),
                     },
                 )
         return None
