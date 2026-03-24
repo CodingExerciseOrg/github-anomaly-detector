@@ -4,7 +4,7 @@ Entry point for the GitHub anomaly detection app.
 Run with:
     python main.py
 
-Environment variables (all optional):
+Environment variables:
     PORT            Port to listen on (default: 5125)
     WEBHOOK_SECRET  GitHub webhook secret for payload verification
     CONFIG_PATH     Path to config.json (default: ./config.json)

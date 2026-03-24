@@ -12,7 +12,7 @@ class PushTimeDetector(BaseDetector):
     Flags push events that occur within any configured suspicious time window.
 
     Supports multiple windows, e.g.:
-        [{"start": "14:00", "end": "16:00"}, {"start": "02:00", "end": "04:00"}]
+        [{"start": "14:00", "end": "16:00"}]
     """
 
     github_event_types = ["push"]
