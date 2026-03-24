@@ -43,10 +43,25 @@ class RepoLifecycleConfig:
 
 
 @dataclass
+class EmailConfig:
+    enabled: bool = True
+    sender: str = ""
+    destination: str = ""
+    smtp_host: str = "smtp.mail.yahoo.com"
+    smtp_port: int = 587
+
+
+@dataclass
+class NotifierConfig:
+    email: EmailConfig
+
+
+@dataclass
 class DetectorConfig:
     push_time: PushTimeConfig
     team_name: TeamNameConfig
     repo_lifecycle: RepoLifecycleConfig
+    notifiers: NotifierConfig
 
 
 def _parse_time(value: str) -> time:
@@ -104,10 +119,21 @@ def load_config(path: str | None = None) -> DetectorConfig:
         deletion_threshold_seconds=rl.get("deletion_threshold_seconds", 600),
     )
 
+    # --- email notifier ---
+    em = raw.get("notifiers", {}).get("email", {})
+    email_cfg = EmailConfig(
+        enabled=em.get("enabled", True),
+        sender=em.get("sender", ""),
+        destination=em.get("destination", ""),
+        smtp_host=em.get("smtp_host", "smtp.mail.yahoo.com"),
+        smtp_port=em.get("smtp_port", 587),
+    )
+
     config = DetectorConfig(
         push_time=push_time_cfg,
         team_name=team_name_cfg,
         repo_lifecycle=repo_lifecycle_cfg,
+        notifiers=NotifierConfig(email=email_cfg),
     )
 
     logger.info("Loaded config from %s", config_path)
@@ -134,3 +160,9 @@ def _log_config_summary(config: DetectorConfig) -> None:
         logger.info("RepoLifecycleDetector: threshold=%ds", rl.deletion_threshold_seconds)
     else:
         logger.info("RepoLifecycleDetector: disabled")
+
+    em = config.notifiers.email
+    if em.enabled:
+        logger.info("EmailNotifier        : %s -> %s", em.sender, em.destination)
+    else:
+        logger.info("EmailNotifier        : disabled")

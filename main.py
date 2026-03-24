@@ -5,10 +5,11 @@ Run with:
     python main.py
 
 Environment variables:
-    PORT            Port to listen on (default: 5125)
-    WEBHOOK_SECRET  GitHub webhook secret for payload verification
-    CONFIG_PATH     Path to config.json (default: ./config.json)
-    LOG_LEVEL       Logging level (default: INFO)
+    PORT                        Port to listen on (default: 5125)
+    WEBHOOK_SECRET              GitHub webhook secret for payload verification
+    CONFIG_PATH                 Path to config.json (default: ./config.json)
+    EMAIL_APPLICATION_PASSWORD  SMTP password for the email notifier
+    LOG_LEVEL                   Logging level (default: INFO)
 """
 
 import logging
@@ -32,9 +33,7 @@ def build_dispatcher() -> EventDispatcher:
     config = load_config()
     dispatcher = EventDispatcher()
 
-    # Register detectors — add new ones here as the system grows.
-    # Each detector receives only the slice of config it needs.
-    # Detectors with enabled=false in config.json are skipped entirely.
+    # Register detectors
     if config.push_time.enabled:
         dispatcher.register_detector(PushTimeDetector(config.push_time))
     if config.team_name.enabled:
@@ -42,9 +41,10 @@ def build_dispatcher() -> EventDispatcher:
     if config.repo_lifecycle.enabled:
         dispatcher.register_detector(RepoLifecycleDetector(config.repo_lifecycle))
 
-    # Register notifiers 
+    # Register notifiers
     dispatcher.register_notifier(ConsoleNotifier())
-    dispatcher.register_notifier(EmailNotifier())
+    if config.notifiers.email.enabled:
+        dispatcher.register_notifier(EmailNotifier(config.notifiers.email))
 
     return dispatcher
 
@@ -57,8 +57,6 @@ def main() -> None:
     )
 
     webhook_secret = os.getenv("WEBHOOK_SECRET")
-
-
     port = int(os.getenv("PORT", 5125))
 
     dispatcher = build_dispatcher()

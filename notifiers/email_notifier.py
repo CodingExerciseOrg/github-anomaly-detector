@@ -5,6 +5,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 from notifiers.base import BaseNotifier
+from config_loader import EmailConfig
 from models import Alert
 
 logger = logging.getLogger(__name__)
@@ -13,19 +14,12 @@ logger = logging.getLogger(__name__)
 class EmailNotifier(BaseNotifier):
     """Sends alerts via email using SMTP."""
 
-    def __init__(
-        self,
-        sender: str = "idangin93@yahoo.com",
-        destination: str = "githubchecker@yopmail.com",
-        password: str = os.getenv("EMAIL_APPLICATION_PASSWORD"),
-        smtp_host: str = "smtp.mail.yahoo.com",
-        smtp_port: int = 587,
-    ) -> None:
-        self._sender = sender
-        self._destination = destination
-        self._password = password
-        self._smtp_host = smtp_host
-        self._smtp_port = smtp_port
+    def __init__(self, config: EmailConfig) -> None:
+        self._sender = config.sender
+        self._destination = config.destination
+        self._smtp_host = config.smtp_host
+        self._smtp_port = config.smtp_port
+        self._password = os.getenv("EMAIL_APPLICATION_PASSWORD")
 
     def notify(self, alert: Alert) -> None:
         subject = f"[GitHub Alert] {alert.title}"
